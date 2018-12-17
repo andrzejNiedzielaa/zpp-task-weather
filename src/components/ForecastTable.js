@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types"
-import ForecastRow from "./ForecastRow"
 import styled from 'styled-components'
 
 const Table = styled.table`
@@ -19,20 +18,28 @@ const Body = styled.tbody`
 // TODO
 `;
 
+const DataCell = styled.td`
+// TODO
+`;
+
 let ForecastTable = ({ data }) => {
     return (
         <Table>
             <Headers>
                 <Row>
-                    <th>Data</th>
-                    <th>Temperatura</th>
-                    <th>Ogólnie</th>
+                    <th>Date</th>
+                    <th>Temperature</th>
+                    <th>General</th>
                 </Row>
             </Headers>
             <Body>
-                {data.map(row => (
-                    <ForecastRow key={row.dt} data={row}/>
-                ))}
+            {data.map(row => (
+                <Row key={row.dt}>
+                    <DataCell>{row.dt_txt}</DataCell>
+                    <DataCell>{row.main.temp}</DataCell>
+                    <DataCell>{row.weather[0].main}</DataCell>
+                </Row>)
+            )}
             </Body>
         </Table>
     )

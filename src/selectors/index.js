@@ -1,49 +1,71 @@
 import {createSelector} from 'reselect'
 
-function getCity(state) {
-    return state.city;
+export function getCity(state) {
+    return state.get('city');
 }
 
-function getWeatherList(state) {
-    return state.list;
+export function getWeatherList(state) {
+    // TODO - filtering depending on isDaily
+    return state.get('list');
 }
 
-function getFetchingStatus(state) {
-    return state.isFetching;
+export function getFetchingStatus(state) {
+    return state.get('isFetching');
 }
 
-function getUpdateTime(state) {
-    return state.update_date;
+export function getUpdateTime(state) {
+    return state.get('update_date');
 }
 
-function getCityName(state) {
-    return state.city.name;
+export function getCityName(state) {
+    return state.getIn(['city', 'name']);
+}
+
+export function isForecastDaily(state) {
+    return state.get('isDaily');
 }
 
 function isTempNice(temp) {
     return temp >= 14 && temp <= 25;
 }
 
-const getTempList = createSelector([getWeatherList], (list) =>
-    list.map(interval => interval.main.temp));
-
-const noSnowOrRain = createSelector([getWeatherList], (list) =>
-    list
-    .filter(interval =>
-        interval.weather[0].description.match(/rain|snow/)
-    ).length === 0
+export const getFilteredWeatherList = createSelector(
+    [getWeatherList, isForecastDaily],
+    (list, isDaily) =>
+        isDaily
+            ? list.filter(interval => interval.get('dt_txt').match(/15:00:00/))
+            : list
 );
 
-const getAverageTemperature = createSelector([getTempList], (list) =>
-    list.reduce((acc, curr) =>  acc + curr, 0) / list.length
+const getTempList = createSelector(
+    [getFilteredWeatherList],
+    (list) =>
+        list.map(interval => interval.getIn(['main', 'temp'])));
+
+const noSnowOrRain = createSelector(
+    [getFilteredWeatherList],
+    (list) =>
+        list
+            .filter(interval =>
+                interval.getIn(['weather', 0, 'description']).match(/rain|snow/)
+            )
+            .size === 0
+);
+
+const getAverageTemperature = createSelector(
+    [getTempList],
+    (list) =>
+        list.reduce((acc, curr) => acc + curr, 0) / list.size
 );
 
 
-const areTemperaturesNice = createSelector([getTempList], (list) =>
-    list.reduce((acc, curr) => acc && isTempNice(curr), true)
+const areTemperaturesNice = createSelector(
+    [getTempList],
+    (list) =>
+        list.reduce((acc, curr) => acc && isTempNice(curr), true)
 );
 
-const getWeatherCondition =
+export const getWeatherCondition =
     createSelector(
         [noSnowOrRain, getAverageTemperature, areTemperaturesNice],
         (nasty_fall, avg_temp, nice_temps) => {
@@ -60,13 +82,5 @@ const getWeatherCondition =
                     return "Not nice";
             }
         }
-        );
+    );
 
-export {
-    getCity,
-    getUpdateTime,
-    getWeatherList,
-    getFetchingStatus,
-    getCityName,
-    getWeatherCondition
-}

@@ -1,8 +1,12 @@
+import { fromJS } from "immutable";
+
 export const FETCH_FORECAST_SUCCESS = "FETCH_FORECAST_SUCCESS";
 export const FETCH_FORECAST_REQUEST = "FETCH_FORECAST_REQUEST";
 export const FETCH_FORECAST_FAILURE = "FETCH_FORECAST_FAILURE";
-
+export const SHOW_DAILY_FORECAST = "SHOW_DAILY_FORECAST";
+export const SHOW_HOURLY_FORECAST = "SHOW_HOURLY_FORECAST";
 export const FORECAST_EXPIRATION_TIME = 10000;
+
 const FORECAST_API_KEY = "APPID=2fb2ebf9e2f45bc55573083028b02cd7";
 const BASE_URL = `https://api.openweathermap.org/data/2.5/forecast?${FORECAST_API_KEY}&units=metric`;
 
@@ -12,7 +16,7 @@ export function getForecastWithCity(city, last_updated, last_city) {
     return dispatch => {
         if ((last_city !== undefined && last_city.toLowerCase()) === city.toLowerCase()
             && Date.now() - last_updated < FORECAST_EXPIRATION_TIME)
-                return;
+            return;
         clearTimeout(timer);
         dispatch(fetchForecastRequest());
         dispatch(fetchForecast(`q=${city}`))
@@ -21,6 +25,7 @@ export function getForecastWithCity(city, last_updated, last_city) {
 
 export function getWeatherWithLocation() {
     return dispatch => {
+        clearTimeout(timer);
         dispatch(fetchForecastRequest());
         return navigator.geolocation.getCurrentPosition(position => {
             dispatch(fetchForecast(
@@ -36,7 +41,7 @@ export function getWeatherWithLocationDelayed() {
                 dispatch(fetchForecastRequest());
                 dispatch(fetchForecast(
                     `lat=${position.coords.latitude}&lon=${position.coords.longitude}`));
-        }),5000);
+            }), 5000);
     }
 }
 
@@ -61,6 +66,18 @@ export function fetchForecastFailure(error) {
     };
 }
 
+export function showDailyForecast() {
+    return {
+        type: SHOW_DAILY_FORECAST
+    }
+}
+
+export function showHourlyForecast() {
+    return {
+        type: SHOW_HOURLY_FORECAST
+    }
+}
+
 function fetchForecast(query) {
     return dispatch => fetch(
         BASE_URL + `&${query}`
@@ -69,7 +86,7 @@ function fetchForecast(query) {
         .then(response => response.json())
         .then(json => {
             removeUnnecessaryKeys(json);
-            dispatch(fetchForecastSuccess(json));
+            dispatch(fetchForecastSuccess(fromJS(json)));
         })
         .catch(error => {
             dispatch(fetchForecastFailure(error));

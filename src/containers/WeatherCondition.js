@@ -3,6 +3,7 @@ import {connect} from "react-redux"
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import {getWeatherCondition} from '../selectors'
+import { toJS } from '../helpers/to-js'
 
 let WeatherCondition = ({ condition }) => {
     return (
@@ -21,4 +22,4 @@ function mapStateToProps(state) {
    }
 }
 
-export default connect(mapStateToProps)(WeatherCondition)
+export default connect(mapStateToProps)(toJS(WeatherCondition))

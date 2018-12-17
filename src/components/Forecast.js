@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Loader from 'react-loader-spinner'
 import ForecastTable from "./ForecastTable"
 import WeatherCondition from '../containers/WeatherCondition'
+import ForecastFilters from '../containers/ForecastFilters'
 
 const AlertMessage = styled.div`
 // TODO
@@ -14,10 +15,10 @@ const ForecastWrapper = styled.div`
 `;
 
 const CityHeader = styled.h1`
-
+// TODO
 `;
 
-let Forecast = ({weatherList, isFetching, city}) => {
+let Forecast = ({ weatherList, isFetching, city, last_updated }) => {
     if (isFetching) {
         return <Loader
             type="Puff"
@@ -32,6 +33,7 @@ let Forecast = ({weatherList, isFetching, city}) => {
         <ForecastWrapper>
             <CityHeader>{city.name}, {city.country}</CityHeader>
             <WeatherCondition/>
+            <ForecastFilters/>
             <ForecastTable data={weatherList}/>
         </ForecastWrapper>
     )

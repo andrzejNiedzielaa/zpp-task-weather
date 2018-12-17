@@ -1,16 +1,14 @@
 import React from "react"
-import {connect} from "react-redux"
-import {getForecastWithCity} from "../actions"
+import { connect } from "react-redux"
+import { getForecastWithCity } from "../actions"
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import {
     getUpdateTime,
     getCityName
 } from '../selectors'
-
-const Wrapper = styled.div`
-// TODO
-`;
+import BaseButton from "../components/Button";
+import { toJS } from "../helpers/to-js";
 
 const Form = styled.form`
 // TODO
@@ -20,7 +18,7 @@ const Input = styled.input`
 // TODO
 `;
 
-const SearchButton = styled.button`
+const SearchButton = styled(BaseButton)`
 // TODO
 `;
 
@@ -28,25 +26,23 @@ let SearchBar = ({ dispatch, last_updated, city }) => {
     let input;
 
     return (
-        <Wrapper>
-            <Form
-                onSubmit={e => {
-                    e.preventDefault();
-                    if (!input.value.trim()) {
-                        return;
-                    }
-                    dispatch(getForecastWithCity(input.value, last_updated, city));
-                    input.value = "";
+        <Form
+            onSubmit={e => {
+                e.preventDefault();
+                if (!input.value.trim()) {
+                    return;
+                }
+                dispatch(getForecastWithCity(input.value, last_updated, city));
+                input.value = "";
+            }}
+        >
+            <Input
+                ref={node => {
+                    input = node;
                 }}
-            >
-                <Input
-                    ref={node => {
-                        input = node;
-                    }}
-                />
-                <SearchButton type="submit">Search</SearchButton>
-            </Form>
-        </Wrapper>
+            />
+            <SearchButton type="submit">Search</SearchButton>
+        </Form>
     );
 };
 
@@ -63,4 +59,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(SearchBar);
+export default connect(mapStateToProps)(toJS(SearchBar));
